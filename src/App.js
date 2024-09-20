@@ -6,37 +6,25 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminDashboard from './components/AdminDashboard';
-import AddMovieForm from './components/AddMovieForm';
-import UpdateMovieForm from './components/UpdateMovieForm';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
-const App = () => {
+function App() {
   return (
-    <UserProvider>
-      <Router>
+    <Router>
+      <UserProvider>
         <AppNavbar />
-        <MainRoutes />
-      </Router>
-    </UserProvider>
+        <div className="container">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Routes>
+        </div>
+      </UserProvider>
+    </Router>
   );
-};
-
-const MainRoutes = () => {
-  const { user } = useContext(UserContext);
-
-  return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      {user?.isAdmin && (
-        <>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/add-movie" element={<AddMovieForm />} />
-          <Route path="/update-movie/:id" element={<UpdateMovieForm />} />
-        </>
-      )}
-    </Routes>
-  );
-};
+}
 
 export default App;

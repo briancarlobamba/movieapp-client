@@ -1,43 +1,44 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Form, Button } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
-import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css';
 
 const LoginPage = () => {
+  const { login } = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setUser } = useContext(UserContext);
-  const navigate = useNavigate();
-  const notyf = new Notyf();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const response = await fetch('https://movieapp-api-lms1.onrender.com/users/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      // Check if the response includes the isAdmin field
-      setUser({ email: data.email, isAdmin: data.isAdmin }); // Adjust this line as needed
-      notyf.success('Login successful');
-      navigate('/');
-    } else {
-      notyf.error('Login failed');
-    }
+    login(email, password);
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <button type="submit">Login</button>
-    </form>
+    <div>
+      <h1>Login</h1>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="email">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            placeholder="Enter email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="password">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Form.Group>
+
+        <Button variant="primary" type="submit">Login</Button>
+      </Form>
+    </div>
   );
 };
 

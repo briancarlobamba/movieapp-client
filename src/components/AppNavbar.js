@@ -1,32 +1,26 @@
 import React, { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Navbar, Nav, Button } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
-import { Navbar, Nav } from 'react-bootstrap';
 
 const AppNavbar = () => {
-  const { user, setUser } = useContext(UserContext);
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    setUser(null);
-    navigate('/login');
-  };
+  const { user, logout } = useContext(UserContext);
 
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
-      <Navbar.Brand as={Link} to="/">Movie Catalog</Navbar.Brand>
+      <Navbar.Brand href="/">Movie Catalog</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="ml-auto">
-          {!user ? (
+          {user ? (
             <>
-              <Nav.Link as={Link} to="/login">Login</Nav.Link>
-              <Nav.Link as={Link} to="/register">Register</Nav.Link>
+              {!user.isAdmin && <Nav.Link href="/">Movies</Nav.Link>}
+              {user.isAdmin && <Nav.Link href="/admin">Admin Dashboard</Nav.Link>}
+              <Button variant="outline-light" onClick={logout}>Logout</Button>
             </>
           ) : (
             <>
-              {user.isAdmin && <Nav.Link as={Link} to="/admin">Admin Dashboard</Nav.Link>}
-              <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+              <Nav.Link href="/login">Login</Nav.Link>
+              <Nav.Link href="/register">Register</Nav.Link>
             </>
           )}
         </Nav>

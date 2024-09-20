@@ -1,111 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { Form, Button, Container } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Notyf } from 'notyf'; 
-import 'notyf/notyf.min.css'; 
+import React, { useState } from 'react';
+import { Modal, Button, Form } from 'react-bootstrap';
+import { addMovie } from '../utils/FetchHelper';
 
-const notyf = new Notyf(); 
-
-function MovieForm({ isUpdate, updateMoviesList }) {
+const AddMovieForm = ({ onAddMovie }) => {
+  const [show, setShow] = useState(false);
   const [movie, setMovie] = useState({
-    title: '',
-    director: '',
-    year: '',
-    description: '',
-    genre: ''
+    title: '', director: '', year: '', description: '', genre: ''
   });
-  const { id } = useParams();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isUpdate && id) {
-      fetch(`https://movieapp-api-lms1.onrender.com/movies/getMovie/${id}`)
-        .then(res => res.json())
-        .then(data => setMovie(data))
-        .catch(err => console.error(err));
-    }
-  }, [id, isUpdate]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const url = isUpdate 
-      ? `https://movieapp-api-lms1.onrender.com/movies/updateMovie/${id}`
-      : 'https://movieapp-api-lms1.onrender.com/movies/addMovie';
-
-    fetch(url, {
-      method: isUpdate ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(movie)
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to update movie');
-        return res.json();
-      })
-      .then((data) => {
-        notyf.success(isUpdate ? 'Movie updated successfully' : 'Movie added successfully');
-        updateMoviesList(data);
-        navigate('/dashboard');
-      })
-      .catch(err => {
-        console.error(err);
-        notyf.error(isUpdate ? 'Failed to update movie' : 'Failed to add movie');
-      });
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setMovie(prev => ({ ...prev, [name]: value }));
+    setMovie((prevMovie) => ({ ...prevMovie, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addMovie(movie).then(() => {
+      setShow(false);
+      onAddMovie();  // Call the function to refetch movies
+    });
   };
 
   return (
-    <Container>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group>
-          <Form.Label>Title</Form.Label>
-          <Form.Control 
-            name="title" 
-            value={movie.title} 
-            onChange={handleChange} 
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Director</Form.Label>
-          <Form.Control 
-            name="director" 
-            value={movie.director} 
-            onChange={handleChange} 
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Year</Form.Label>
-          <Form.Control 
-            name="year" 
-            value={movie.year} 
-            onChange={handleChange} 
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Description</Form.Label>
-          <Form.Control 
-            name="description" 
-            value={movie.description} 
-            onChange={handleChange} 
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Genre</Form.Label>
-          <Form.Control 
-            name="genre" 
-            value={movie.genre} 
-            onChange={handleChange} 
-          />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          {isUpdate ? 'Update Movie' : 'Add Movie'}
-        </Button>
-      </Form>
-    </Container>
+    <>
+      <Button onClick={() => setShow(true)}>Add Movie</Button>
+      <Modal show={show} onHide={() => setShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Movie</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="title">
+              <Form.Label>Title</Form.Label>
+              <Form.Control type="text" name="title" value={movie.title} onChange={handleChange} />
+            </Form.Group>
+            <Form.Group controlId="director">
+              <Form.Label>Director</Form.Label>
+              <Form.Control type="text" name="director" value={movie.director} onChange={handleChange} />
+            </Form.Group>
+            <Form.Group controlId="year">
+              <Form.Label>Year</Form.Label>
+              <Form.Control type="number" name="year" value={movie.year} onChange={handleChange} />
+            </Form.Group>
+            <Form.Group controlId="description">
+              <Form.Label>Description</Form.Label>
+              <Form.Control type="text" name="description" value={movie.description} onChange={handleChange} />
+            </Form.Group>
+            <Form.Group controlId="genre">
+              <Form.Label>Genre</Form.Label>
+              <Form.Control type="text" name="genre" value={movie.genre} onChange={handleChange} />
+            </Form.Group>
+            <Button type="submit">Submit</Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    </>
   );
-}
+};
 
-export default MovieForm;
+export default AddMovieForm;
